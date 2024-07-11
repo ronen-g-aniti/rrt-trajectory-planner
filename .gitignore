@@ -1,0 +1,7 @@
+
+/bin/
+*.exe
+__pycache__/
+*.pyc
+*.pyo
+.vscode/
