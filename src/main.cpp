@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <sstream>
 
 /**
  * @brief Saves the trajectory to a CSV file
@@ -40,11 +41,10 @@ void saveTrajectory(const std::vector<std::vector<double>>& path, const std::str
  * @param filename Name of the file to save the states
  */
 void saveStates(const std::vector<std::vector<double>>& states, const std::string& filename) {
-	std::ofstream file(filename);
+    std::ofstream file(filename);
     if (!file.is_open()) {
-		std::cerr << "Error opening file: " << filename << std::endl;
-		return;
-	
+        std::cerr << "Error opening file: " << filename << std::endl;
+        return;
     }
 
     // Write the header
@@ -53,13 +53,12 @@ void saveStates(const std::vector<std::vector<double>>& states, const std::strin
     // Write the data
     for (const auto& state : states) {
         for (size_t i = 0; i < state.size(); ++i) {
-			file << state[i];
+            file << state[i];
             if (i < state.size() - 1) {
-				file << ",";
-			}
-		}
-		file << "\n";
-	
+                file << ",";
+            }
+        }
+        file << "\n";
     }
 
     file.close();
@@ -69,14 +68,26 @@ void saveStates(const std::vector<std::vector<double>>& states, const std::strin
 /**
  * @brief Main function
  */
-int main() {
-   
+int main(int argc, char* argv[]) {
+    if (argc < 7) {
+        std::cerr << "Usage: " << argv[0] << " <startX> <startY> <startZ> <goalX> <goalY> <goalZ>" << std::endl;
+        return 1;
+    }
+
+    // Parse command-line arguments
+    double startX = std::stod(argv[1]);
+    double startY = std::stod(argv[2]);
+    double startZ = std::stod(argv[3]);
+    double goalX = std::stod(argv[4]);
+    double goalY = std::stod(argv[5]);
+    double goalZ = std::stod(argv[6]);
+
+    // Create start and goal position vectors
+    std::vector<double> startPos = { startX, startY, startZ };
+    std::vector<double> goalPos = { goalX, goalY, goalZ };
+
     // Define environment and obstacles
     ObstacleParser environment("data/obstacles.csv");
-
-    // Define start and goal positions
-    std::vector<double> startPos = { 0.0, 0.0, 0.0 };
-    std::vector<double> goalPos = { 110.0, -10, 150.0 };
 
     // Create RRT object
     RRT rrt(environment, startPos, goalPos);

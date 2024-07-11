@@ -13,7 +13,9 @@ The following image typifies the results of the project:
 
 ### Theory
 
-This section outlines the theoretical foundation and algorithmic steps behind the custom steering function utilized in our 3D path planning algorithm. The objective is to navigate a quadcopter through three-dimensional space from a start point to a target, adhering to the quadcopter's motion constraints.
+This section provides an overview of the Rapidly-exploring Random Tree (RRT) algorithm, a foundational technique in robotics for navigating spaces with obstacles, and then delves into the theoretical foundation and algorithmic steps behind the custom steering function utilized in our 3D path planning algorithm. RRT is designed to efficiently explore high-dimensional spaces by randomly building a space-filling tree. The algorithm iteratively extends towards randomly sampled points in the space, creating branches that gradually cover the search area. This makes RRT particularly suited for path planning in complex environments.
+
+The objective of our modified approach is to navigate a quadcopter through three-dimensional space from a start point to a target, adhering to the quadcopter's motion constraints. Our enhancements focus on integrating a custom steering function and Rodrigues' rotation formula to manage the quadcopter's orientation, ensuring smooth and realistic transitions towards the target direction within its physical limitations.
 
 #### Custom Steering Function
 
@@ -62,7 +64,9 @@ To expand the search tree towards the goal, the following algorithmic steps are 
 3. **Apply Steering Function**: Use the custom steering function to calculate the new orientation vector $\mathbf{v}_{\text{new}}$ for the parent node, ensuring the rotation does not exceed the maximum steering angle rate.
 
 4. **Update State with Euler Integration**:
+
     - **Update Position**: Calculate the new position $\mathbf{p}_{\text{new}}$ by advancing the parent node's position along $\mathbf{v}_{\text{new}}$ for a duration determined by the quadcopter's speed and the time step $dt$.
+
     - **Update Orientation**: Set the parent node's orientation to $\mathbf{v}_{\text{new}}$.
 
 5. **Add New Node to Tree**: Create a new node with the updated state ($\mathbf{p}_{\text{new}}$, $\mathbf{v}_{\text{new}}$) and add it to the search tree as a child of the parent node.
@@ -75,15 +79,21 @@ This approach combines Rodrigues' rotation formula with Euler integration to exp
 1. **Compile the Project**: Compile the C++ files using `g++`, ensuring that the include path is set up to recognize the `/libs` directory where `nanoflann.hpp` resides. Use the following command:
 
     ```shell
-    g++ -I./libs -o rrt_planner src/*.cpp
+    g++ src/*.cpp -Iheaders -Ilibs -Ilibs -o bin/trajectory_planner.exe -std=c++17 -O2
     ```
 
-    This command compiles all C++ source files in the `src` directory, setting the output executable name to `rrt_planner`. The `-I./libs` flag adds the `/libs` directory to the include path, allowing `g++` to find `nanoflann.hpp`.
+    This command compiles all C++ source files in the `src` directory, setting the output executable name to `rrt_planner`. The `-Ilibs` flag adds the `/libs` directory to the include path, allowing `g++` to find `nanoflann.hpp`.
 
-2. **Run the Executable**: After compilation, execute the generated binary to run the trajectory planning algorithm:
+2. **Run the Executable**: After compilation, execute the generated binary to run the trajectory planning algorithm with specified start and goal positions:
 
-    ```shell
-    ./rrt_planner
+    ```sh
+    bin/trajectory_planner.exe <startX> <startY> <startZ> <goalX> <goalY> <goalZ>
+    ```
+
+    For example, to use start position (0.0, 0.0, 0.0) and goal position (110.0, -10.0, 150.0), run:
+
+    ```sh
+    bin/trajectory_planner.exe 0.0 0.0 0.0 110.0 -10.0 150.0
     ```
 
 3. **Visualize the Trajectory**: Utilize the Python script `visualization/show_trajectory.py` to visualize the generated trajectory. This script relies on Matplotlib and Numpy for rendering the trajectory. Run it with:
